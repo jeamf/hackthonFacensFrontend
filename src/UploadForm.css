@@ -1,0 +1,28 @@
+.upload-container {
+  background-color: #f0f0f0;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.tab-btn {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.tab-btn.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.tab-btn:hover {
+  background-color: #e7e7e7;
+}
