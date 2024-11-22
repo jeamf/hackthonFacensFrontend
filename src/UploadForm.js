@@ -1,83 +1,71 @@
 import React, { useState } from 'react';
 import './UploadForm.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from './logo/logo.png';
 
 const UploadForm = () => {
   const [activeTab, setActiveTab] = useState('upload');
   const [file, setFile] = useState(null);
-  const [authKeyUpload, setAuthKeyUpload] = useState('');
-  const [docIdUpload, setDocIdUpload] = useState('');
-  const [recipientUpload, setRecipientUpload] = useState('');
-  const [authKeyRead, setAuthKeyRead] = useState('');
-  const [docIdRead, setDocIdRead] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [recipientName, setRecipientName] = useState('');
+  const [randomIdentification, setRandomIdentification] = useState('');
+  const [encryptionKey, setEncryptionKey] = useState('');
+  const [showResult, setShowResult] = useState(false);
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (
-      selectedFile &&
-      (selectedFile.type === 'application/pdf' ||
-        selectedFile.type === 'application/msword' ||
-        selectedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        selectedFile.type === 'text/plain')
-    ) {
-      setFile(selectedFile);
-    } else {
-      alert('Por favor, selecione um arquivo PDF, DOC, DOCX ou TXT.');
-      setFile(null);
+    setFile(event.target.files[0]);
+  };
+
+  const handleFileNameChange = (event) => {
+    setFileName(event.target.value);
+  };
+
+  const handleRecipientChange = (event) => {
+    setRecipientName(event.target.value);
+  };
+
+  const handleCopyToClipboard = (value) => {
+    navigator.clipboard.writeText(value);
+    alert('Copiado para o clipboard!');
+  };
+
+  const handleSubmit = async () => {
+    if (!file || !fileName || !recipientName) {
+      alert('Por favor, preencha todos os campos!');
+      return;
     }
-  };
 
-  const handleAuthKeyUploadChange = (event) => {
-    setAuthKeyUpload(event.target.value);
-  };
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileName', fileName);
+    formData.append('recipientName', recipientName);
 
-  const handleDocIdUploadChange = (event) => {
-    setDocIdUpload(event.target.value);
-  };
+    try {
+      const response = await fetch('http://localhost:8080/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-  const handleRecipientUploadChange = (event) => {
-    setRecipientUpload(event.target.value);
-  };
-
-  const handleAuthKeyReadChange = (event) => {
-    setAuthKeyRead(event.target.value);
-  };
-
-  const handleDocIdReadChange = (event) => {
-    setDocIdRead(event.target.value);
+      if (response.ok) {
+        const data = await response.json();
+        setRandomIdentification(data.randomIdentification);
+        setEncryptionKey(data.encryptionKey);
+        setShowResult(true);
+      } else {
+        alert('Erro ao enviar o documento. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      alert('Erro na conexão com o servidor.');
+    }
   };
 
   return (
     <div className="container mt-5 p-4 border rounded shadow-lg upload-container">
-      <div className="d-flex align-items-center mb-3">
-        <img
-          src={logo}
-          alt="Logo"
-          style={{ width: '80px', height: '80px' }}
-          className="me-3"
-        />
-        <div className="tabs-container w-100 text-center">
-          <button
-            className={`btn tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
-            onClick={() => setActiveTab('upload')}
-          >
-            Envio de documentos
-          </button>
-          <button
-            className={`btn tab-btn ${activeTab === 'read' ? 'active' : ''}`}
-            onClick={() => setActiveTab('read')}
-          >
-            Leitura de documentos
-          </button>
-        </div>
-      </div>
-
-      <h1 className="text-center title mb-4">Gerenciamento de Documentos Criptografados</h1>
-
+      {/* Upload Form */}
       {activeTab === 'upload' && (
-        <div>
-          <h2 className="mb-3">Envio de documentos</h2>
+        <>
+          <h1 className="text-center mb-4">Envio de Documento</h1>
+
           <div className="mb-3">
             <label htmlFor="fileInput" className="form-label">
               Escolha um arquivo:
@@ -90,98 +78,83 @@ const UploadForm = () => {
               className="form-control"
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="docIdUpload" className="form-label">
-              Identificação do documento:
-            </label>
-            <input
-              id="docIdUpload"
-              type="text"
-              value={docIdUpload}
-              onChange={handleDocIdUploadChange}
-              className="form-control"
-              style={{
-                width: '250px',
-                height: '40px',
-                borderWidth: '2px',
-              }}
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="authKeyUpload" className="form-label">
-              Chave de autenticação:
-            </label>
-            <input
-              id="authKeyUpload"
-              type="text"
-              value={authKeyUpload}
-              onChange={handleAuthKeyUploadChange}
-              className="form-control"
-              style={{
-                width: '250px',
-                height: '40px',
-                borderWidth: '2px',
-              }}
-            />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="recipientUpload" className="form-label">
-              Receptor/Destinatário:
-            </label>
-            <input
-              id="recipientUpload"
-              type="text"
-              value={recipientUpload}
-              onChange={handleRecipientUploadChange}
-              className="form-control"
-              style={{
-                width: '250px',
-                height: '40px',
-                borderWidth: '2px',
-              }}
-            />
-          </div>
-        </div>
-      )}
 
-      {activeTab === 'read' && (
-        <div>
-          <h2 className="mb-3">Leitura de documentos</h2>
           <div className="mb-3">
-            <label htmlFor="docIdRead" className="form-label">
-              Identificação do documento:
+            <label htmlFor="fileName" className="form-label">
+              Nome do arquivo:
             </label>
             <input
-              id="docIdRead"
+              id="fileName"
               type="text"
-              value={docIdRead}
-              onChange={handleDocIdReadChange}
+              value={fileName}
+              onChange={handleFileNameChange}
               className="form-control"
-              style={{
-                width: '250px',
-                height: '40px',
-                borderWidth: '2px',
-              }}
             />
           </div>
+
           <div className="mb-3">
-            <label htmlFor="authKeyRead" className="form-label">
-              Chave de autenticação:
+            <label htmlFor="recipientName" className="form-label">
+              Destinatário:
             </label>
             <input
-              id="authKeyRead"
+              id="recipientName"
               type="text"
-              value={authKeyRead}
-              onChange={handleAuthKeyReadChange}
+              value={recipientName}
+              onChange={handleRecipientChange}
               className="form-control"
-              style={{
-                width: '250px',
-                height: '40px',
-                borderWidth: '2px',
-              }}
             />
           </div>
-        </div>
+
+          <button className="btn btn-primary mb-3" onClick={handleSubmit}>
+            Enviar Documento
+          </button>
+
+          {showResult && (
+            <div className="mt-4">
+              <div className="mb-3">
+                <label htmlFor="randomIdentification" className="form-label">
+                  Identificação do documento:
+                </label>
+                <div className="d-flex align-items-center">
+                  <input
+                    id="randomIdentification"
+                    type="text"
+                    value={randomIdentification}
+                    readOnly
+                    className="form-control me-2"
+                  />
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => handleCopyToClipboard(randomIdentification)}
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="encryptionKey" className="form-label">
+                  Chave de autenticação:
+                </label>
+                <div className="d-flex align-items-center">
+                  <input
+                    id="encryptionKey"
+                    type="text"
+                    value={encryptionKey}
+                    readOnly
+                    className="form-control me-2"
+                  />
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => handleCopyToClipboard(encryptionKey)}
+                  >
+                    Copiar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
