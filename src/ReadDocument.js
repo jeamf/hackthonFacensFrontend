@@ -4,6 +4,7 @@ import './App.css';
 const ReadDocument = () => {
   const [randomIdentification, setRandomIdentification] = useState('');
   const [encryptionKey, setEncryptionKey] = useState('');
+  const [passphrase, setPassphrase] = useState('');
   const [documentContent, setDocumentContent] = useState(null);
   const [watermarkCount, setWatermarkCount] = useState(0);
   const [pdfBlobUrl, setPdfBlobUrl] = useState('');
@@ -11,7 +12,7 @@ const ReadDocument = () => {
   const iframeRef = useRef(null);
 
   const handleSubmit = async () => {
-    if (!randomIdentification) {
+    if (!randomIdentification || !passphrase) {
       alert('Por favor, preencha todos os campos!');
       return;
     }
@@ -24,7 +25,7 @@ const ReadDocument = () => {
     const localEncryptionKey = arrayRandomIdAndEncryption[1];
 
     try {
-      const response = await fetch(`http://localhost:8080/${localRandomIdentification}?key=${localEncryptionKey}`, {
+      const response = await fetch(`http://localhost:8080/${localRandomIdentification}?key=${localEncryptionKey}&passphrase=${passphrase}`, {
         method: 'GET',
       });
 
@@ -110,6 +111,17 @@ const ReadDocument = () => {
       <h1 className="text-center mb-4">Leitura de Documento</h1>
 
       <div className="mb-3">
+        <label htmlFor="docIdRead" className="form-label">Palavra-chave:</label>
+        <input
+          id="docIdRead"
+          type="text"
+          value={passphrase}
+          onChange={(e) => setPassphrase(e.target.value)}
+          className="form-control"
+        />
+      </div>
+
+      <div className="mb-3">
         <label htmlFor="docIdRead" className="form-label">Identificação do documento:</label>
         <input
           id="docIdRead"
@@ -120,7 +132,7 @@ const ReadDocument = () => {
         />
       </div>
 
-      <button className="btn btn-primary mb-3" onClick={handleSubmit}>Ler Documento</button>
+      <button className="btn btn-secondary mb-3" onClick={handleSubmit}>Ler Documento</button>
 
       {documentContent && (
         <div className="no-print mt-4" style={{ position: 'relative', overflow: 'hidden' }} ref={contentRef}>

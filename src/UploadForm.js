@@ -116,7 +116,7 @@ const UploadForm = () => {
             />
           </div>
 
-          <button className="btn btn-primary mb-3" onClick={handleSubmit}>
+          <button className="btn btn-secondary mb-3" onClick={handleSubmit}>
             Enviar Documento
           </button>
 
