@@ -29,14 +29,19 @@ const UploadForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!file || !fileName || !recipientName) {
+    if (!file || !recipientName) {
       alert('Por favor, preencha todos os campos!');
       return;
     }
-
+    
     const formData = new FormData();
+
+     /*file.name.split('.').slice(0, -1).join('.');*/
+     const localFileName = file.name;
+     setFileName(localFileName);
+
     formData.append('file', file);
-    formData.append('fileName', fileName);
+    formData.append('fileName', localFileName);
     formData.append('recipientName', recipientName);
 
     try {
@@ -73,21 +78,8 @@ const UploadForm = () => {
             <input
               id="fileInput"
               type="file"
-              accept=".pdf,.doc,.docx,.txt"
+              accept=".pdf,.txt"
               onChange={handleFileChange}
-              className="form-control"
-            />
-          </div>
-
-          <div className="mb-3">
-            <label htmlFor="fileName" className="form-label">
-              Nome do arquivo:
-            </label>
-            <input
-              id="fileName"
-              type="text"
-              value={fileName}
-              onChange={handleFileNameChange}
               className="form-control"
             />
           </div>
@@ -112,27 +104,6 @@ const UploadForm = () => {
           {showResult && (
             <div className="mt-4">
               <div className="mb-3">
-                <label htmlFor="randomIdentification" className="form-label">
-                  Identificação do documento:
-                </label>
-                <div className="d-flex align-items-center">
-                  <input
-                    id="randomIdentification"
-                    type="text"
-                    value={randomIdentification}
-                    readOnly
-                    className="form-control me-2"
-                  />
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => handleCopyToClipboard(randomIdentification)}
-                  >
-                    Copiar
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-3">
                 <label htmlFor="encryptionKey" className="form-label">
                   Chave de autenticação:
                 </label>
@@ -140,13 +111,13 @@ const UploadForm = () => {
                   <input
                     id="encryptionKey"
                     type="text"
-                    value={encryptionKey}
+                    value={randomIdentification + '#' + encryptionKey}
                     readOnly
                     className="form-control me-2"
                   />
                   <button
                     className="btn btn-secondary"
-                    onClick={() => handleCopyToClipboard(encryptionKey)}
+                    onClick={() => handleCopyToClipboard(randomIdentification + '#' + encryptionKey)}
                   >
                     Copiar
                   </button>
