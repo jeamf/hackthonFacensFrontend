@@ -7,6 +7,7 @@ const UploadForm = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [recipientName, setRecipientName] = useState('');
+  const [passphrase, setPassphrase] = useState('');
   const [randomIdentification, setRandomIdentification] = useState('');
   const [encryptionKey, setEncryptionKey] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -23,13 +24,17 @@ const UploadForm = () => {
     setRecipientName(event.target.value);
   };
 
+  const handlePassphraseChange = (event) => {
+    setPassphrase(event.target.value);
+  };
+
   const handleCopyToClipboard = (value) => {
     navigator.clipboard.writeText(value);
     alert('Copiado para o clipboard!');
   };
 
   const handleSubmit = async () => {
-    if (!file || !recipientName) {
+    if (!file || !recipientName || !passphrase) {
       alert('Por favor, preencha todos os campos!');
       return;
     }
@@ -43,6 +48,7 @@ const UploadForm = () => {
     formData.append('file', file);
     formData.append('fileName', localFileName);
     formData.append('recipientName', recipientName);
+    formData.append('passphrase', passphrase);
 
     try {
       const response = await fetch('http://localhost:8080/upload', {
@@ -93,6 +99,19 @@ const UploadForm = () => {
               type="text"
               value={recipientName}
               onChange={handleRecipientChange}
+              className="form-control"
+            />
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="recipientName" className="form-label">
+              Palavra-chave:
+            </label>
+            <input
+              id="passphrase"
+              type="text"
+              value={passphrase}
+              onChange={handlePassphraseChange}
               className="form-control"
             />
           </div>
