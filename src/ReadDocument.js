@@ -135,7 +135,7 @@ const ReadDocument = () => {
             gridTemplateRows: 'repeat(auto-fill, minmax(200px, 1fr))',
             color: 'rgba(0, 0, 0, 0.1)',
             textAlign: 'center',
-            zIndex: 1,
+            zIndex: 3,
             pointerEvents: 'none',
             userSelect: 'none',
           }}>
@@ -156,7 +156,7 @@ const ReadDocument = () => {
           <div style={{ position: 'relative', zIndex: 0 }}>
             <h4 style={{ marginBottom: '20px' }}>{documentContent.fileName}</h4>
             {isPDF ? (
-              <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '600px' }}>
+              <div style={{ width: '100%', height: '600px' }} >
                 <embed
                   src={pdfBlobUrl}
                   type="application/pdf"
@@ -174,7 +174,21 @@ const ReadDocument = () => {
                   backgroundColor: 'white', // Match your background color
                   zIndex: 2,
                 }} />
+                {/* Overlay div to block right-click */}
+                <div
+                  onContextMenu={(e) => e.preventDefault()}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'transparent',
+                    pointerEvents: 'auto',  // Ensures overlay captures right-clicks
+                  }}
+                />
               </div>
+
             ) : (
               <pre style={{ position: 'relative', zIndex: 0 }}>
                 {atob(documentContent.decryptContent)}
@@ -182,8 +196,9 @@ const ReadDocument = () => {
             )}
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 
