@@ -9,7 +9,6 @@ const UploadForm = () => {
   const [recipientName, setRecipientName] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [randomIdentification, setRandomIdentification] = useState('');
-  const [encryptionKey, setEncryptionKey] = useState('');
   const [showResult, setShowResult] = useState(false);
 
   const handleFileChange = (event) => {
@@ -59,10 +58,15 @@ const UploadForm = () => {
       if (response.ok) {
         const data = await response.json();
         setRandomIdentification(data.randomIdentification);
-        setEncryptionKey(data.encryptionKey);
         setShowResult(true);
       } else {
-        alert('Erro ao enviar o documento. Tente novamente.');
+        const errorData = await response.json();
+        if (errorData.errorList && errorData.errorList.length > 0) {
+          // Exibe os erros retornados pela API
+          alert(`Erro(s) no envio:\n- ${errorData.errorList.join('\n- ')}`);
+        } else {
+          alert('Erro ao enviar o documento. Tente novamente.');
+        }
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
@@ -78,7 +82,7 @@ const UploadForm = () => {
           <h1 className="text-center mb-4">Envio de Documento</h1>
 
           <div className="mb-3">
-            <label htmlFor="fileInput" className="form-label">
+            <label htmlFor="fileInput" className="form-label text-start">
               Escolha um arquivo:
             </label>
             <input
@@ -130,13 +134,13 @@ const UploadForm = () => {
                   <input
                     id="encryptionKey"
                     type="text"
-                    value={randomIdentification + '#' + encryptionKey}
+                    value={randomIdentification}
                     readOnly
                     className="form-control me-2"
                   />
                   <button
                     className="btn btn-secondary"
-                    onClick={() => handleCopyToClipboard(randomIdentification + '#' + encryptionKey)}
+                    onClick={() => handleCopyToClipboard(randomIdentification)}
                   >
                     Copiar
                   </button>
