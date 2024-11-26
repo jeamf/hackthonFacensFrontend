@@ -3,7 +3,6 @@ import './App.css';
 
 const ReadDocument = () => {
   const [randomIdentification, setRandomIdentification] = useState('');
-  const [encryptionKey, setEncryptionKey] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [documentContent, setDocumentContent] = useState(null);
   const [watermarkCount, setWatermarkCount] = useState(0);
@@ -17,15 +16,8 @@ const ReadDocument = () => {
       return;
     }
 
-    const arrayRandomIdAndEncryption = randomIdentification.split('#');
-    setRandomIdentification(arrayRandomIdAndEncryption[0]);
-    setEncryptionKey(arrayRandomIdAndEncryption[1]);
-
-    const localRandomIdentification = arrayRandomIdAndEncryption[0];
-    const localEncryptionKey = arrayRandomIdAndEncryption[1];
-
     try {
-      const response = await fetch(`http://localhost:8080/${localRandomIdentification}?key=${localEncryptionKey}&passphrase=${passphrase}`, {
+      const response = await fetch(`http://localhost:8080/${randomIdentification}?passphrase=${passphrase}`, {
         method: 'GET',
       });
 
@@ -33,7 +25,13 @@ const ReadDocument = () => {
         const data = await response.json();
         setDocumentContent(data);
       } else {
-        alert('Erro ao recuperar o documento.');
+        const errorData = await response.json();
+        if (errorData.errorList && errorData.errorList.length > 0) {
+          // Exibe os erros retornados pela API
+          alert(`Erro(s) no envio:\n- ${errorData.errorList.join('\n- ')}`);
+        } else {
+          alert('Erro ao enviar o documento. Tente novamente.');
+        }
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
@@ -197,6 +195,7 @@ const ReadDocument = () => {
                     bottom: 0,
                     backgroundColor: 'transparent',
                     pointerEvents: 'auto',  // Ensures overlay captures right-clicks
+                    clipPath: 'inset(0 16px 0 0)',
                   }}
                 />
               </div>
@@ -208,8 +207,7 @@ const ReadDocument = () => {
             )}
           </div>
         </div>
-      )
-      }
+      )}
     </div >
   );
 };
